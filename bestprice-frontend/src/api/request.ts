@@ -12,7 +12,7 @@ const requestConfiguration = (config: AxiosRequestConfig) => {
    * if user chooses to be remembered pull from local storage else
    * pull from session storage for consequent request
    */
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("storeToken");
 
   // don't append token for this routes
   if (token) {
@@ -20,6 +20,7 @@ const requestConfiguration = (config: AxiosRequestConfig) => {
       ...config,
       headers: {
         token: `Bearer ${token}`,
+        credentials: "include",
         ...config.headers,
       },
     };

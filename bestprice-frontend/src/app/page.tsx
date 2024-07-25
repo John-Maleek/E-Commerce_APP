@@ -1,10 +1,18 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { Box, Center, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import ProductListCmp from "../components/ProductListCmp";
 import ButtonCmp from "../components/ButtonCmp";
+import { useSelector } from "react-redux";
+import { redirect } from "next/navigation";
 
 export default function Home() {
+  const { isLoggedIn } = useSelector((state: any) => state.auth);
+  if (!isLoggedIn) {
+    redirect("/auth");
+  }
+
   return (
     <main>
       <Box
