@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Stack, Text, useToast } from "@chakra-ui/react";
 import Image from "next/image";
 import React, { useState } from "react";
 import InputCmp from "../../components/InputCmp";
@@ -7,6 +7,8 @@ import ButtonCmp from "../../components/ButtonCmp";
 import { FormikProvider, useFormik } from "formik";
 import { useLoginUser, useRegisterUser } from "../../api/auth";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../store/slices/authSlice";
 
 interface IForm {
   onClick: () => void;
@@ -36,7 +38,11 @@ const Login = ({ onClick, formik, isLoading }: IForm) => {
             value={formik.values?.password}
             onChange={formik.handleChange}
           />
-          <ButtonCmp label="Login" onClick={formik.submitForm} type="submit" />
+          <ButtonCmp
+            label="Login"
+            onClick={formik.submitForm}
+            isLoading={isLoading}
+          />
         </Stack>
       </form>
       <Box mt={"16px"}>
@@ -95,7 +101,7 @@ const SignUp = ({ onClick, formik, isLoading }: IForm) => {
           <ButtonCmp
             label="Sign up"
             onClick={formik.submitForm}
-            type="submit"
+            isLoading={isLoading}
           />
         </Stack>
       </form>
@@ -115,11 +121,60 @@ const SignUp = ({ onClick, formik, isLoading }: IForm) => {
 };
 
 const Auth = () => {
+  localStorage.clear();
   const router = useRouter();
+  const toastNotification = useToast();
   const { mutate: registerUser, isPending } = useRegisterUser();
   const { mutate: loginUser, isPending: logginIn } = useLoginUser();
+  const dispatch = useDispatch();
 
-  const [view, setView] = useState<"register" | "login">("register");
+  const [view, setView] = useState<"register" | "login">("login");
+
+  const handleSubmit = (values, type) => {
+    if (type === "register") {
+      registerUser(
+        { data: values },
+        {
+          onSuccess: (res) => {
+            const { _id: userId, isAdmin, email, username } = res;
+            dispatch(login({ userId, isAdmin, email, username }));
+            router.push("/");
+          },
+          onError: (err) => {
+            toastNotification({
+              title: `${err?.message}`,
+              position: "top-right",
+              status: "error",
+              variant: "left-accent",
+              isClosable: true,
+            });
+          },
+        }
+      );
+      return;
+    } else {
+      const { username, password } = values;
+      loginUser(
+        { data: { username, password } },
+        {
+          onSuccess: (res) => {
+            const { _id: userId, isAdmin, email, username } = res;
+            dispatch(login({ userId, isAdmin, email, username }));
+            router.push("/");
+          },
+          onError: (err) => {
+            toastNotification({
+              title: `${err?.message}`,
+              position: "top-right",
+              status: "error",
+              variant: "left-accent",
+              isClosable: true,
+            });
+          },
+        }
+      );
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -127,21 +182,9 @@ const Auth = () => {
       username: "",
       password: "",
     },
-    onSubmit: (values) => {
-      if (view === "register") {
-        registerUser({ data: values }, { onSuccess: () => router.push("/") });
-        return;
-      } else {
-        const { username, password } = values;
-        loginUser(
-          { data: { username, password } },
-          {
-            onSuccess: () => {
-              // router.push("/");
-            },
-          }
-        );
-      }
+    onSubmit: async (values) => {
+      await handleSubmit(values, view);
+      formik.resetForm();
     },
   });
 

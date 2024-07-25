@@ -4,10 +4,14 @@ import { CiSearch } from "react-icons/ci";
 import { PiShoppingCartSimpleLight } from "react-icons/pi";
 import Image from "next/image";
 import React from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
+import ButtonCmp from "./ButtonCmp";
+import { useDispatch } from "react-redux";
+import { logout } from "../store/slices/authSlice";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
   return (
     <Box
@@ -30,6 +34,14 @@ const Navbar = () => {
           <Circle border={"1px solid lightgray"} size={"48px"}>
             <PiShoppingCartSimpleLight fontSize={"30px"} />
           </Circle>
+          <ButtonCmp
+            label="Logout"
+            onClick={() => {
+              localStorage.clear();
+              dispatch(logout());
+              redirect("/auth");
+            }}
+          />
         </Flex>
       </Flex>
     </Box>

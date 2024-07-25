@@ -11,9 +11,13 @@ export const useRegisterUser = () => {
   return useMutation({
     mutationFn: ({ data }: { data: ISignUp }) =>
       Request.post(`/auth/sign-up`, data)
-        .then((res) => res?.data)
+        .then((res) => {
+          const { accessToken } = res?.data;
+          localStorage.setItem("storeToken", accessToken);
+          return res?.data;
+        })
         .catch((err) => {
-          throw err;
+          throw err?.response?.data;
         }),
   });
 };
@@ -23,11 +27,12 @@ export const useLoginUser = () => {
     mutationFn: ({ data }: { data: ISignUp }) =>
       Request.post(`/auth/login`, data)
         .then((res) => {
-          console.log(res?.data);
+          const { accessToken } = res?.data;
+          localStorage.setItem("storeToken", accessToken);
           return res?.data;
         })
         .catch((err) => {
-          throw err;
+          throw err?.response?.data;
         }),
   });
 };
