@@ -8,8 +8,6 @@ interface ISignUp {
   fullname?: string;
 }
 export const useRegisterUser = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ data }: { data: ISignUp }) =>
       Request.post(`/auth/sign-up`, data)
@@ -21,8 +19,6 @@ export const useRegisterUser = () => {
 };
 
 export const useLoginUser = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ data }: { data: ISignUp }) =>
       Request.post(`/auth/login`, data)
