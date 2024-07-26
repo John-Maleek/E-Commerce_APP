@@ -7,7 +7,7 @@ export const useGetProducts = () => {
     queryKey: ["getProducts"],
     queryFn: () =>
       Request.get(`/products`)
-        .then((res) => res)
+        .then((res) => res?.data)
         .catch((err) => {
           throw err;
         }),
@@ -20,7 +20,7 @@ export const useGetProduct = ({ productId }) => {
     queryKey: ["getProduct"],
     queryFn: () =>
       Request.get(`/products/${productId}`)
-        .then((res) => res)
+        .then((res) => res?.data)
         .catch((err) => {
           throw err;
         }),

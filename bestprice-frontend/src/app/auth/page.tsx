@@ -1,12 +1,12 @@
 "use client";
 import { Box, Flex, Heading, Stack, Text, useToast } from "@chakra-ui/react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputCmp from "../../components/InputCmp";
 import ButtonCmp from "../../components/ButtonCmp";
 import { FormikProvider, useFormik } from "formik";
 import { useLoginUser, useRegisterUser } from "../../api/auth";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../store/slices/authSlice";
 
@@ -121,7 +121,13 @@ const SignUp = ({ onClick, formik, isLoading }: IForm) => {
 };
 
 const Auth = () => {
-  localStorage.clear();
+  const { isLoggedIn } = useSelector((state: any) => state.auth);
+  useEffect(() => {
+    if (isLoggedIn) {
+      redirect("/");
+    }
+  }, [isLoggedIn]);
+
   const router = useRouter();
   const toastNotification = useToast();
   const { mutate: registerUser, isPending } = useRegisterUser();
@@ -137,7 +143,8 @@ const Auth = () => {
         {
           onSuccess: (res) => {
             const { _id: userId, isAdmin, email, username } = res;
-            dispatch(login({ userId, isAdmin, email, username }));
+            localStorage.setItem("user", JSON.stringify({ userId, isAdmin }));
+            dispatch(login({ userId, isAdmin }));
             router.push("/");
           },
           onError: (err) => {
@@ -159,6 +166,7 @@ const Auth = () => {
         {
           onSuccess: (res) => {
             const { _id: userId, isAdmin, email, username } = res;
+            localStorage.setItem("user", JSON.stringify({ userId, isAdmin }));
             dispatch(login({ userId, isAdmin, email, username }));
             router.push("/");
           },
@@ -183,7 +191,7 @@ const Auth = () => {
       password: "",
     },
     onSubmit: async (values) => {
-      await handleSubmit(values, view);
+      handleSubmit(values, view);
       formik.resetForm();
     },
   });

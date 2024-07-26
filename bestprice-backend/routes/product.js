@@ -15,7 +15,7 @@ router.post("/", verifyAuth, async (req, res) => {
   }
 });
 
-router.get("/:id", verifyAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (product) {
@@ -28,7 +28,7 @@ router.get("/:id", verifyAuth, async (req, res) => {
   }
 });
 
-router.get("/", verifyAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
     return res.status(200).json(products);

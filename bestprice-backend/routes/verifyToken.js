@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 
+let request;
+
 const verifyToken = (req, res, next) => {
   const token = req.headers?.token?.split(" ")[1];
 
@@ -18,7 +20,7 @@ const verifyToken = (req, res, next) => {
 
 const verifyAuth = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.id === req.params.id || req.user.isAdmin) {
+    if (!!req.user.id) {
       next();
     } else {
       return res.status(403).json({ message: "Unauthorized" });
