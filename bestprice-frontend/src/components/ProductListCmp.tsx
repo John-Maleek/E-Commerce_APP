@@ -1,9 +1,9 @@
 "use client";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const ProductListCmp = ({ productId }) => {
+const ProductListCmp = ({ productInfo }) => {
   const router = useRouter();
   return (
     <Box borderRadius={"16px"} cursor={"pointer"} bg={"white"} w="full">
@@ -11,17 +11,19 @@ const ProductListCmp = ({ productId }) => {
         aspectRatio={1 / 1}
         borderTopRadius={"16px"}
         bg={"lightgray"}
-        bgImage={"/sample_product_image.png"}
+        bgImage={
+          `url(${productInfo?.images[0]})` || "/sample_product_image.png"
+        }
         bgPosition={"center"}
-        bgSize={"contain"}
+        bgSize={"cover"}
         bgRepeat={"no-repeat"}
-        onClick={() => router.push(`/product/${productId}`)}
+        onClick={() => router.push(`/product/${productInfo?._id}`)}
       ></Box>
       <Flex alignItems={"center"} padding={"16px"}>
         <Box>
-          <Text fontSize={"20px"}>Product name</Text>
+          <Text fontSize={"20px"}>{productInfo?.product_name}</Text>
           <Text fontSize={"20px"} fontWeight={600}>
-            {`$`} amount
+            {`$`} {productInfo?.price}
           </Text>
         </Box>
       </Flex>

@@ -1,17 +1,42 @@
 "use client";
 import Image from "next/image";
 import styles from "./page.module.css";
-import { Box, Center, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import ProductListCmp from "../components/ProductListCmp";
 import ButtonCmp from "../components/ButtonCmp";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { redirect } from "next/navigation";
+import { useEffect } from "react";
+import { useGetProducts } from "../api/products";
+import { useGetCart } from "../api/cart";
+import { addToCart } from "../store/slices/cartSlice";
 
 export default function Home() {
-  const { isLoggedIn } = useSelector((state: any) => state.auth);
-  if (!isLoggedIn) {
-    redirect("/auth");
-  }
+  const { isLoggedIn, user } = useSelector((state: any) => state.auth);
+  useEffect(() => {
+    if (!isLoggedIn) {
+      redirect("/auth");
+    }
+  }, [isLoggedIn]);
+
+  const element = document.getElementById("product-section");
+
+  const { data: products, isLoading } = useGetProducts();
+  const { data: cart } = useGetCart({ userId: user?.userId });
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (cart) {
+      dispatch(addToCart(cart?.products?.length));
+    }
+  }, [cart, dispatch]);
 
   return (
     <main>
@@ -52,20 +77,37 @@ export default function Home() {
             height={"52px"}
             width={"178px"}
             mt={"16px"}
+            onClick={() =>
+              element?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "start",
+              })
+            }
           />
         </Center>
       </Box>
-      <section>
-        <Flex w="full" mt={"50px"}>
-          <Text fontSize={"24px"} fontWeight={500}>
-            Available products: (102)
-          </Text>
-        </Flex>
-        <SimpleGrid gridGap={"16px"} minChildWidth={"317px"} mt={"32px"}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <ProductListCmp key={i} productId={i} />
-          ))}
-        </SimpleGrid>
+      <section id="product-section">
+        {isLoading ? (
+          <Center h="400px">
+            <Spinner size={"lg"} />
+          </Center>
+        ) : (
+          <>
+            <Flex w="full" mt={"50px"}>
+              <Text fontSize={"24px"} fontWeight={500}>
+                Available products: ({products?.length})
+              </Text>
+            </Flex>
+            <SimpleGrid gridGap={"16px"} minChildWidth={"317px"} mt={"32px"}>
+              {(products as any)?.map((product, index) => (
+                <Box key={index} maxW={"350px"}>
+                  <ProductListCmp productInfo={product} />
+                </Box>
+              ))}
+            </SimpleGrid>
+          </>
+        )}
       </section>
     </main>
   );
