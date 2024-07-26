@@ -11,8 +11,8 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: "*/",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE",
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -23,8 +23,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.use(cors());
+app.options("*", cors());
 
 mongoose
   .connect(process.env.DB_CONNECTION_URL)
